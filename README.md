@@ -1,4 +1,4 @@
-This document is not yet complete.
+For the full source code, please send an email to tranthaiminh98@outlook.com if you are interested
 
 # Inventory Management
 
