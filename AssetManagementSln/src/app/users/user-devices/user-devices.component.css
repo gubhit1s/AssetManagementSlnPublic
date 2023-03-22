@@ -1,0 +1,20 @@
+.actionBtn {
+    border: 1px solid;
+}
+
+.addButton:hover {
+    color: blue;
+}
+
+a {
+    text-decoration: none;
+}
+
+.bulkButton {
+    background-color: #e6456d;
+    border-radius: 50px;
+    border: 0;
+    padding: 0.5rem 1rem;
+    color: white;
+    margin-bottom: 2rem;
+}

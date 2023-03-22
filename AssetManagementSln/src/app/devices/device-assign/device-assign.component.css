@@ -1,0 +1,30 @@
+.data {
+    font-weight: 500;
+    color: #888888;
+}
+
+.row {
+    margin-bottom: 0.8%;
+}
+
+.selectBtn {
+    position: fixed;
+    left: 40%;
+    bottom: 25px;
+    border-radius: 50px;
+    width: 30%;
+    font-weight: 700;
+}
+
+.modal-dialog {
+    width: auto;
+    max-width: 700px !important;
+}
+
+.btn-primary, .btn-secondary {
+    min-width: 100px;
+}
+
+.radio {
+    cursor: pointer;
+}

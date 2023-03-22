@@ -1,0 +1,8 @@
+
+<main>
+    <app-ver-nav-bar *ngIf="isLoggedIn"></app-ver-nav-bar>
+    <div id="router-outlet" [ngClass]="{'nav-bar-not-exist': !isLoggedIn}">
+        <router-outlet></router-outlet>
+    </div>
+    
+</main>

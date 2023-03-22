@@ -1,0 +1,16 @@
+<form (ngSubmit)="onSubmit()" #declineForm="ngForm" class="form-group mt-5" *ngIf="!userConfirmed" [hidden]="!showForm">
+    <label for="reason" class="form-label">Please state your reason of why you can't confirm, and we will process on this.</label>
+    <textarea class="form-control" id="reason" name="reason" required [(ngModel)]="declinedReason" #name="ngModel"></textarea>
+    <div class="alert alert-danger" [hidden]="name.valid || name.pristine">You can't leave this field blank.</div>
+    <button type="submit" class="btn btn-primary mt-3" [disabled]="declineForm.form.invalid">Submit</button>
+    <p *ngIf="errorMsg" class="alert alert-danger">{{ errorMsg }}</p>
+</form>
+
+<div *ngIf="!tokenProcessed">
+    <p><em>Verifying, please wait for a moment...</em></p>
+    <p><em>Please keep your browser until verification completes.</em></p>
+</div>
+<p *ngIf="completed && userConfirmed">Verification Successful! Thank you.</p>
+<p *ngIf="completed && !userConfirmed">Thank you, your reason has been submitted.</p>
+<br>
+<div *ngIf="errorMsg" class="alert alert-danger">{{errorMsg}}</div>

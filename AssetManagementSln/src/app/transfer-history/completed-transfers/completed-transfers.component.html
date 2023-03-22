@@ -1,0 +1,150 @@
+<div class="container">
+  <div class="row mt-5 mb-3">
+    <div class="col">
+      <h3 class="d-inline mt-5"><b>{{ title }}</b></h3>
+      <app-reload (click)="loadData()"></app-reload>
+    </div>
+    <div class="col">
+      <div class="form-outline">
+        <input *ngIf="transfers" type="search" class="form-control search-bar"
+          (search)="identified ? applyFilter($event, transfers) : applyFilter($event, transfersUd)"
+          (keyup)="identified ? applyFilter($event, transfers) : applyFilter($event, transfersUd)"
+          placeholder="Search for transfer(s) in any fields...">
+      </div>
+    </div>
+  </div>
+  <form [formGroup]="filterDateForm" (ngSubmit)="loadData()">
+
+
+    <div class="row mb-4 align-items-center">
+      <div class="col-auto me-5">
+        <ul class="nav nav-pills">
+          <li class="nav-item">
+            <a class="nav-link" [ngClass]="{'active': identified}" (click)="setIdentified(true)"
+              type="button">Identified</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [ngClass]="{'active': !identified}" (click)="setIdentified(false)"
+              type="button">Unidentified</a>
+          </li>
+        </ul>
+      </div>
+      <div class="col-auto">
+        <label for="from" class="form-text">From</label>
+      </div>
+      <div class="col-auto">
+
+        <input type="date" id="from" class="form-control" formControlName="from">
+      </div>
+      <div class="col-auto">
+        <label for="to" class="form-text">To</label>
+      </div>
+      <div class="col-auto">
+        <input type="date" id="to" class="form-control" formControlName="to">
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-info text-white" #submitButton>Filter</button>
+      </div>
+
+    </div>
+
+  </form>
+</div>
+
+<p *ngIf="!transfers"><em>Loading Transfers...</em></p>
+<p class="alert alert-danger" *ngIf="generalErrorMessage">{{ generalErrorMessage }}</p>
+
+
+<div class="mat-elevation-z8" *ngIf="identified">
+  <table mat-table [dataSource]="transfers" matSort matSortActive="transferDate" matSortDirection="desc"
+    [hidden]="!transfers">
+
+    <ng-container matColumnDef="transferDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Transfer Date">Transfer
+        Date</th>
+      <td mat-cell *matCellDef="let transfer">{{ transfer.transferDate | date:'medium' }}</td>
+    </ng-container>
+
+    <ng-container *ngIf="identified" matColumnDef="deviceServiceTag">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Device Service Tag">Service
+        Tag</th>
+      <td mat-cell *matCellDef="let transfer">{{ transfer.deviceServiceTag }}</td>
+    </ng-container>
+
+    <ng-container *ngIf="identified" matColumnDef="deviceTypeName">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Device Type">Device Type</th>
+      <td mat-cell *matCellDef="let transfer">{{ transfer.deviceTypeName }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="transferFrom">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Transfer From">Transfer
+        From</th>
+      <td mat-cell *matCellDef="let transfer">{{ transfer.transferFrom }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="transferTo">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Transfer To">Transfer To
+      </th>
+      <td mat-cell *matCellDef="let transfer">{{ transfer.transferTo }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="transferTypeName">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Transfer Type">Transfer
+        Type</th>
+      <td mat-cell *matCellDef="let transfer">{{ transfer.transferTypeName }}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;">
+    </tr>
+  </table>
+  <mat-paginator [pageSizeOptions]="[10, 20, 50]" showFirstLastButtons aria-label="Select page"></mat-paginator>
+</div>
+
+<div class="mat-elevation-z8"  *ngIf="!identified">
+  <table mat-table [dataSource]="transfersUd" matSort matSortActive="transferDate" matSortDirection="desc"
+    [hidden]="!transfersUd">
+
+    <ng-container matColumnDef="transferDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Transfer Date">Transfer
+        Date</th>
+      <td mat-cell *matCellDef="let transfer">{{ transfer.transferDate | date:'medium' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="deviceTypeName">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Device Type Name">
+        Device Type
+      </th>
+      <td mat-cell *matCellDef="let transfer">{{ transfer.deviceTypeName }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="transferFrom">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Transfer From">Transfer
+        From</th>
+      <td mat-cell *matCellDef="let transfer">{{ transfer.transferFrom }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="transferTo">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Transfer To">Transfer To
+      </th>
+      <td mat-cell *matCellDef="let transfer">{{ transfer.transferTo }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="amount">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Amount">Amount
+      </th>
+      <td mat-cell *matCellDef="let transfer">{{ transfer.amount }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="transferTypeName">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by Transfer Type">Transfer
+        Type</th>
+      <td mat-cell *matCellDef="let transfer">{{ transfer.transferTypeName }}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumnsUd"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumnsUd;">
+    </tr>
+  </table>
+  <mat-paginator [pageSizeOptions]="[10, 20, 50]" showFirstLastButtons aria-label="Select page"></mat-paginator>
+</div>

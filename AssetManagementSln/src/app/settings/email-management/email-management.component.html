@@ -1,0 +1,77 @@
+<form [formGroup]="emailAdForm" (ngSubmit)="onSubmit()" class="mb-2">
+  <div class="container">
+    <h3 class="mt-5 mb-3"><b>Email Administrator</b></h3>
+
+    <p *ngIf="generalErrorMessage" class="alert alert-danger">{{ generalErrorMessage }}</p>
+
+    <em *ngIf="!currentEmailSettings">Loading...</em>
+
+
+    <label class="d-block mt-2 mb-1">This email will be used to receive notifications when a user confirmed or declined
+      the confirmation email.</label>
+    <mat-form-field appearance="fill" [style.width.px]="600" class="mt-2 mb-4">
+      <mat-label>Type the email here</mat-label>
+      <input matInput formControlName="emailAdmin" required>
+      <mat-error *ngIf="emailAdForm.controls['emailAdmin'].invalid">This email is required and must be a TMF group
+        email</mat-error>
+    </mat-form-field>
+
+    <h3 class="mb-3">SMTP Configuration</h3>
+    <div class="row align-items-center mb-2">
+      <div class="col">
+        <label class="d-block">SMTP Host</label>
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>SMTP Host</mat-label>
+          <input matInput formControlName="smtpHost" required>
+          <mat-error *ngFor="let error of getErrors(emailAdForm.get('smtpHost')!, 'SMTP Host', {'pattern': 'has invalid format of a server address'})">{{ error }}</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="col">
+        <label class="d-block">SMTP Port</label>
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>SMTP Port</mat-label>
+          <input matInput formControlName="smtpPort" required>
+          <mat-error *ngFor="let error of getErrors(emailAdForm.get('smtpPort')!, 'SMTP Host', {'pattern': 'must be a number'})">{{ error }}</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="col">
+        <section>
+          <mat-checkbox formControlName="enableSSL">Enable SSL</mat-checkbox>
+        </section>
+      </div>
+    </div>
+    
+    <h3 class="my-3">Email Server Settings</h3>
+    <div class="row align-items-center">
+      <div class="col">
+        <label class="d-block">Email Server Address</label>
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Email Server Address</mat-label>
+          <input matInput formControlName="emailFrom" required>
+          <mat-error *ngIf="emailAdForm.controls['emailFrom'].invalid">Email is required and must be a TMF Group email</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="col">
+        <label class="d-block">Email Server Title</label>
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Email Server Title</mat-label>
+          <input matInput formControlName="titleFrom" required>
+          <mat-error *ngFor="let error of getErrors(emailAdForm.get('titleFrom')!, 'Server Title')">{{ error }}</mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+    
+    <div class="row my-2">
+      <div class="col w-100 text-center">
+        <button mat-flat-button class="btn btn-primary" style="width: auto" min-width="180" type="submit"
+          [disabled]="emailAdForm.invalid">Save All Settings</button>
+      </div>
+    </div>
+  </div>
+</form>
+
+<app-announcement></app-announcement>
+<app-loading></app-loading>

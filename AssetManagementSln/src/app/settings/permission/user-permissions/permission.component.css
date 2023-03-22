@@ -1,0 +1,21 @@
+.mat-column-checkbox {
+    width: 120px;
+}
+
+.revokeButton {
+    background-color: red;
+}
+
+.revokeButton:hover {
+    color: blue;
+}
+
+.delete-icon {
+    font-size: 1.2rem;
+}
+
+.mat-table {
+    width: 98%;
+    margin-left: auto;
+    margin-right: auto;
+}

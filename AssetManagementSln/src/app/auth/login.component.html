@@ -1,0 +1,26 @@
+<div class="main-wrapper">
+    <div class="account-card card">
+        <div class="container card-body">
+            <h3 class="text-center mt-3">Asset Management</h3>
+            <p class="text-center login-subtitle mb-3">Login</p>
+            
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+            <p class="alert alert-danger" *ngIf="generalErrorMessage">{{ generalErrorMessage }}</p>
+
+            <div class="form-group mx-4 my-3">
+                <label>User Name</label>
+                <input class="form-control inputlg" formControlName="userName" type="text">
+            </div>
+            <div class="form-group mx-4 my-3">
+                <label>Password</label>
+                <input class="form-control inputlg" formControlName="password" type="password">
+            </div>
+            <div class="form-group text-center mx-3 mt-5">
+                <button class="btn btn-primary btn-login btn-lg" type="submit" [disabled]="!loginForm.valid">Login</button>
+            </div>
+        </form>
+        </div>
+    </div>
+</div>
+<app-loading></app-loading>
+<app-announcement></app-announcement>

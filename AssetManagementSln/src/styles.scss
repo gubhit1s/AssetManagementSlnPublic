@@ -1,0 +1,85 @@
+/* You can add global styles to this file, and also import other style files */
+
+html, body { 
+    height: 100%; 
+    font-family: 'Circular Std', sans-serif;
+    line-height: normal;
+}
+
+.star {
+    color: red;
+}
+
+.addButton {
+    background-color: #ff9b44;
+    border-radius: 50px;
+    border: 0;
+    padding: 0.5rem 1rem;
+    color: white;
+    margin-bottom: 2rem;
+}
+
+.addButton:hover {
+    color: blue;
+}
+
+.mat-table {
+    font-family: 'Circular Std', sans-serif;
+    width: 100%;
+}
+
+.mat-cell {
+    border-bottom-width: 0 !important;
+    font-size: 1rem;
+}
+
+th {
+    border-bottom: 2px solid currentColor !important;
+}
+
+.mat-row:hover {
+    background-color: lightgray;
+}
+
+.popup {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 9;
+}
+
+.search-bar {
+    border-radius: 40px;
+}
+
+.actionButton {
+    border-radius: 50px;
+    border: 0;
+    padding: 0.5rem 1rem;
+    color: white;
+    margin-bottom: 2rem;
+}
+
+.reportButton {
+    background-color: seagreen;
+}
+
+.reportButton:hover {
+    background-color: LawnGreen;
+}
+
+.uploadButton {
+    background-color: MediumVioletRed;
+}
+.uploadButton:hover {
+    background-color: hotpink;
+}
+
+.status {
+    font-weight: 700;
+}
+
+
+.mat-paginator {
+    font-family: 'Circular Std', sans-serif;
+}

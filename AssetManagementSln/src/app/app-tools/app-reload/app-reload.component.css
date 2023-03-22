@@ -1,0 +1,12 @@
+.app-reload {
+    border: none;
+    background: none;
+}
+
+i {
+    font-size: 1.1rem;
+}
+
+i:hover {
+    color: blue;
+}

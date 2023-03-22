@@ -1,0 +1,31 @@
+
+
+.modal-footer {
+    border: none;
+}
+
+tr {
+    font-weight: normal;
+}
+
+th {
+    border-bottom: 2px solid currentColor;
+}
+
+.mat-row:hover {
+    background-color: lightgray;
+}
+
+.deleteBtn * {
+    width: 50px;
+    height: 50px;
+}
+
+.mat-cell {
+    border-bottom-width: 0;
+    font-size: 1rem;
+}
+
+i {
+    font-size: inherit;
+}

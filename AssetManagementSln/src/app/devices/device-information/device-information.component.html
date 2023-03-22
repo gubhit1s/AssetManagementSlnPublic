@@ -1,0 +1,60 @@
+<p *ngIf="generalErrorMessage" class="alert alert-danger">{{ generalErrorMessage }}
+    
+<div class="container">
+    <div class="row mt-5 mb-0">
+        <div class="col">
+            <h3><b>Device Information</b></h3>
+        </div>
+    </div>
+</div>
+
+<hr class="mt-0 mb-2">
+
+<div *ngIf="!device"><em>Loading...</em></div>
+<p>
+
+<div *ngIf="device" class="container">
+    <div class="row">
+        <div class="col">Device Id:</div>
+        <div class="col data">{{ device.id }}</div>
+
+        <div class="col">Service Tag:</div>
+        <div class="col data">{{ device.serviceTag }}</div>
+
+        <div class="col">Current Status:</div>
+        <div class="col data">{{ device.deviceStatusName }}</div>
+
+    </div>
+    <div class="row">
+        <div class="col">Device Type:</div>
+        <div class="col data">{{ device.deviceTypeName }}</div>
+
+        <div class="col">Device Model:</div>
+        <div class="col data">{{ device.deviceModel }}</div>
+
+        <div class="col">Last User 1:</div>
+        <div class="col">{{ device.lastUser1 }}</div>
+
+    </div>
+    <div class="row">
+
+        <div class="col">Device Name:</div>
+        <div class="col data">{{ device.deviceName }}</div>
+
+        <div class="col">PO Number:</div>
+        <div class="col data">{{ device.poNumber }}</div>
+
+        <div class="col">Last User 2:</div>
+        <div class="col">{{ device.lastUser2 }}</div>
+    </div>
+    <div class="row">
+
+        <div class="col-md-2">Acquired Date:</div>
+        <div class="col-md-2 data">{{ device.acquiredDate }}</div>
+
+        <div class="col-md-2">Current User:</div>
+        <div class="col data">{{ device.currentUsername }}</div>
+
+    </div>
+
+</div>

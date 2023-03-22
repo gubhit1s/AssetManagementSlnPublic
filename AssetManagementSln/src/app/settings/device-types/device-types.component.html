@@ -1,0 +1,110 @@
+<div class="container">
+    <div class="row mt-5">
+        <div class="col">
+            <h3 class="d-inline mt-5"><b>Device Types</b></h3>
+        </div>
+        <div class="col">
+            <button *ngIf="deviceTypesIdentified" mat-flat-button color="primary" id="addButton" 
+                class="d-inline addButton" data-bs-toggle="modal" data-bs-target="#addModal">
+                <i class="bi bi-plus mt-5"></i>
+            </button>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col">
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <a class="nav-link" [ngClass]="{'active': identified}" (click)="setIdentified(true)" type="button">Identified</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" [ngClass]="{'active': !identified}" (click)="setIdentified(false)" type="button">Unidentified</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form (ngSubmit)="onSubmit(dtForm)" #dtForm="ngForm">
+                <div class="modal-header form-group">
+                    <label for="name" class="form-label">
+                        <h5 class="modal-title" id="addModalLabel">Add Device Type <sup class="star">*</sup></h5>
+                    </label>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #addModal (ngClick)="onModalClose()"></button>
+                </div>
+                <div class="modal-body mb-3">
+                    <input type="text" class="form-control" id="name" required [(ngModel)]="data" name="name" #name="ngModel">
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="radio" required name="identify" id="identified" [(ngModel)]="identifiedInput" [value]="true">
+                        <label class="form-check-label" for="identified">Identified</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" required name="identify" id="unidentified" [(ngModel)]="identifiedInput" [value]="false">
+                        <label class="form-check-label" for="unidentified">Unidentified</label>
+                    </div>
+                    <div class="alert alert-danger" [hidden]="name.valid || name.pristine">Name is required</div>
+                    <p *ngIf="errorAddMessage" class="alert alert-danger">{{ errorAddMessage }}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" [disabled]="dtForm.form.invalid">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header form-group">
+                <label for="name" class="form-label">
+                    <h5 class="modal-title" id="addModalLabel">Delete Device Type</h5>
+                </label>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="onModalClose()" #deleteModal></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure to delete this device type?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="onModalClose()">No</button>
+                <button type="submit" class="btn btn-danger" (click)="onDelete()">Yes</button>
+                <p *ngIf="errorDeleteMessage" class="alert alert-danger">{{ errorDeleteMessage }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<p *ngIf="!deviceTypesIdentified"><em>Loading...</em></p>
+
+<table mat-table [dataSource]="identified ? deviceTypesIdentified : deviceTypesUnidentified" class="mat-elevation-z8" [hidden]="!deviceTypesIdentified">
+
+    <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef>Id</th>
+        <td mat-cell *matCellDef="let deviceType">{{ deviceType.id }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let deviceType">{{ deviceType.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="action">
+        <th mat-header-cell *matHeaderCellDef>Action</th>
+        <td mat-cell *matCellDef="let deviceType">
+            <button [id]="deviceType.id" title="Delete" data-bs-toggle="modal" class="deleteBtn" data-bs-target="#deleteModal" #deleteBtn (click)="getDeviceType(deviceType)">
+                <i class="bi bi-trash" style="color:red;"></i>
+            </button>
+        </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+</table>
+
+<app-loading></app-loading>

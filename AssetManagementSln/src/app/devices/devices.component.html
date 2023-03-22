@@ -1,0 +1,237 @@
+<div class="container">
+  <div class="row mt-5">
+    <div class="col-md-3">
+      <h3 class="d-inline mt-5 ml-0"><b>Identified Devices</b></h3>
+      <app-reload (click)="loadData()"></app-reload>
+    </div>
+    <div class="col">
+      <div class="row justify-content-end">
+        <div class="col-auto">
+          <button color="success" class="actionButton reportButton" (click)="downloadReport()">
+            <b><i class="bi bi-download me-2"></i>Download Report</b>
+          </button>
+        </div>
+        <div class="col-auto">
+          <button class="actionButton uploadButton" data-bs-toggle="modal" data-bs-target="#uploadModal">
+            <b><i class="bi bi-cloud-arrow-up me-2"></i>Import Devices</b>
+          </button>
+        </div>
+        <div class="col-auto">
+          <button class="actionButton uploadButton" data-bs-toggle="modal" data-bs-target="#uploadUserDeviceModal">
+            <b><i class="bi bi-cloud-arrow-up me-2"></i>Import Assignations</b>
+          </button>
+        </div>
+        <div class="col-auto">
+          <button mat-flat-button color="primary" id="addButton" class="addButton" data-bs-toggle="modal"
+            data-bs-target="#addModal" (click)="getAddTitle()">
+            <b><i class="bi bi-plus-lg" style="font-size: inherit"></i> Add New</b>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mb-3" #searchArea>
+      <div class="col-md-10">
+        <div class="form-outline">
+          <input *ngIf="allDevices" type="search" class="form-control search-bar"
+            (search)="applyFilter($event, allDevices)" (keyup)="applyFilter($event, allDevices)"
+            placeholder="Search for device(s) in any fields...">
+        </div>
+      </div>
+      <div class="col" *ngIf="allDeviceTypes | async as result">
+        <select class="form-select" (change)="filterByDeviceType($event)">
+          <option selected>All</option>
+          <option *ngFor="let deviceType of result" [ngValue]="deviceType.id">
+            {{deviceType.name}}</option>
+        </select>
+      </div>
+  </div>
+</div>
+
+<div class="modal fade" id="uploadUserDeviceModal" tabindex="-1" aria-labelledby="uploadUserDeviceModal"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <form [formGroup]="uploadForm" (ngSubmit)="onUploadAssignation()">
+        <div class="modal-header">
+          <h5 class="modal-title" id="uploadUserDeviceModalLabel">Import Assignation</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #uploadUserDeviceModal
+            (click)="onUploadCancel()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3 text-center">
+            <button type="button" class="btn btn-info text-white" (click)="downloadAssignation()">
+              <i class="bi bi-download me-2"></i>Click here to download the sample file
+            </button>
+          </div>
+
+          <div class="mb-3">
+            <label for="formFile" class="form-label">
+              Note: Please leave one sheet only in the file. Data is read until the
+              <span class="text-danger">first empty row</span>.
+            </label>
+            <div class="container">
+              <div class="row">
+                <div class="col-sm-10">
+                  <input class="form-control" type="file" id="formFile" formControlName="excelFile"
+                    (change)="getSelectedFile($event)">
+                </div>
+                <div class="col">
+                  <button class="form-control" type="button" class="btn btn-secondary"
+                    (click)="onUploadCancel()">Clear</button>
+                </div>
+              </div>
+            </div>
+            <p class="alert alert-danger" *ngIf="validateErrorMsg">{{ validateErrorMsg }}</p>
+            <div class="alert alert-warning alert-dismissible fade show" role="alert" *ngIf="generalErrorMessage">
+              <strong>Error:</strong> {{generalErrorMessage}}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div class="alert alert-danger" *ngIf="uploadErrorMsg && uploadErrorMsg!.length > 0">
+              <p class="my-1" *ngFor="let error of uploadErrorMsg">{{ error }}</p>
+            </div>
+            <mat-progress-bar class="progress-bar" mode="determinate" [value]="progress"
+              *ngIf="progress"></mat-progress-bar>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="w-100 text-center">
+            <button type="submit" class="btn btn-primary" [disabled]="!fileValid || fileProcessing"
+              style="width: 300px;">Upload</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModal" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <form [formGroup]="uploadForm" (ngSubmit)="onUpload()">
+        <div class="modal-header">
+          <h5 class="modal-title" id="uploadModalLabel">Import Devices</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #uploadModal
+            (click)="onUploadCancel()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3 text-center">
+            <button type="button" class="btn btn-info text-white" (click)="onDownload()">
+              <i class="bi bi-download me-2"></i>Click here to download the sample file
+            </button>
+          </div>
+
+          <div class="mb-3">
+            <label for="formFile" class="form-label">
+              Note: Please leave one sheet only in the file. Data is read until the
+              <span class="text-danger">first empty row</span>.
+            </label>
+            <div class="container">
+              <div class="row">
+                <div class="col-sm-10">
+                  <input class="form-control" type="file" id="formFile" formControlName="excelFile"
+                    (change)="getSelectedFile($event)">
+                </div>
+                <div class="col">
+                  <button class="form-control" type="button" class="btn btn-secondary"
+                    (click)="onUploadCancel()">Clear</button>
+                </div>
+              </div>
+            </div>
+            <p class="alert alert-danger" *ngIf="validateErrorMsg">{{ validateErrorMsg }}</p>
+            <div class="alert alert-danger" *ngIf="uploadErrorMsg && uploadErrorMsg!.length > 0">
+              <p class="my-1" *ngFor="let error of uploadErrorMsg">{{ error }}</p>
+            </div>
+            <mat-progress-bar class="progress-bar" mode="determinate" [value]="progress"
+              *ngIf="progress"></mat-progress-bar>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="w-100 text-center">
+            <button type="submit" class="btn btn-primary" [disabled]="!fileValid || fileProcessing"
+              style="width: 300px;">Upload</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="alert alert-danger alert-dismissible fade show" role="alert" *ngIf="generalErrorMessage">
+  <strong>Error!</strong> {{generalErrorMessage}}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModal" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <form [formGroup]="deviceForm" (ngSubmit)="onSubmit()">
+
+        <div class="modal-header form-group text-center">
+          <label for="name" class="form-label w-100">
+            <h5 class="modal-title" id="addModal">{{ modalTitle }}</h5>
+          </label>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #addModal></button>
+        </div>
+
+        <div class="modal-body container">
+          <div class="row">
+            <div class="col">
+              <label for="serviceTag">Service Tag<span class="star">*</span></label>
+              <input type="text" required class="form-control" formControlName="serviceTag" id="serviceTag">
+              <div class="alert alert-danger" [hidden]="deviceForm.get('serviceTag')!.pristine"
+                *ngFor="let error of getErrors(deviceForm.get('serviceTag')!, 'Service Tag')">
+                {{ error }}</div>
+            </div>
+            <div class="col">
+              <label for="serviceTag">Device Name</label>
+              <input type="text" class="form-control" formControlName="deviceName">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col" *ngIf="allDeviceTypes | async as result">
+              <label for="deviceType">Device Type<span class="star">*</span></label>
+              <select class="form-select form-control" formControlName="deviceTypeId">
+                <option *ngFor="let deviceType of result" [ngValue]="deviceType.id">
+                  {{deviceType.name}}</option>
+              </select>
+              <div class="alert alert-danger"
+                [hidden]="deviceForm.get('deviceTypeId')!.valid || deviceForm.get('deviceTypeId')!.pristine">
+                Device Type is required</div>
+            </div>
+            <div class="col">
+              <label for="warrantyDate">Acquired Date</label>
+              <input type="date" class="form-control" formControlName="acquiredDate">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <label for="deviceModel">Device Model</label>
+              <input type="text" class="form-control" formControlName="deviceModel">
+            </div>
+            <div class="col">
+              <label for="poNumber">PO Number</label>
+              <input type="text" class="form-control" formControlName="poNumber">
+            </div>
+          </div>
+
+          <div class="row" *ngIf="generalErrorMessage">
+            <p class="alert alert-danger">{{ generalErrorMessage }}</p>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <div class="w-100 text-center">
+            <button type="submit" class="btn btn-primary" [disabled]="deviceForm.invalid"
+              style="width: 300px;">Submit</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<app-devices-list [devices]="allDevices" [deviceTypes]="allDeviceTypes" [errorMessage]="generalErrorMessage"
+  (dataChanged)="loadData()"></app-devices-list>

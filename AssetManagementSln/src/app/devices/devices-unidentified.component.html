@@ -1,0 +1,222 @@
+<div class="container mb-3">
+  <div class="row mt-5">
+    <div class="col">
+      <h3 class="d-inline mt-5"><b>Unidentified Devices</b></h3>
+      <app-reload (click)="loadData()"></app-reload>
+    </div>
+
+    <div class="col">
+      <div class="row justify-content-end">
+        <div class="col-auto">
+          <button color="success" class="actionButton reportButton" (click)="downloadUdReport()">
+            <b><i class="bi bi-download me-2"></i>Download Report</b>
+          </button>
+        </div>
+        <div class="col-auto">
+          <button class="actionButton uploadButton" data-bs-toggle="modal" data-bs-target="#uploadUserDeviceModalUd">
+            <b><i class="bi bi-cloud-arrow-up me-2"></i>Import Assignations</b>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal fade" id="uploadUserDeviceModalUd" tabindex="-1" aria-labelledby="uploadUserDeviceModalUd"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <form [formGroup]="uploadForm" (ngSubmit)="onUploadAssignation()">
+        <div class="modal-header">
+          <h5 class="modal-title" id="uploadUserDeviceModalUdLabel">Import Excel file</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #uploadUserDeviceModalUd
+            (click)="onUploadCancel()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3 text-center">
+            <button type="button" class="btn btn-info text-white" (click)="downloadSampleAssignation()">
+              <i class="bi bi-download me-2"></i>Click here to download the sample file
+            </button>
+          </div>
+
+          <div class="mb-3">
+            <label for="formFile" class="form-label">
+              Note: Please leave one sheet only in the file. Data is read until the
+              <span class="text-danger">first empty row</span>.
+            </label>
+            <div class="container">
+              <div class="row">
+                <div class="col-sm-10">
+                  <input class="form-control" type="file" id="formFile" formControlName="excelFile"
+                    (change)="getSelectedFile($event)">
+                </div>
+                <div class="col">
+                  <button class="form-control" type="button" class="btn btn-secondary"
+                    (click)="onUploadCancel()">Clear</button>
+                </div>
+              </div>
+            </div>
+            <p class="alert alert-danger" *ngIf="validateErrorMsg">{{ validateErrorMsg }}</p>
+            <p class="alert alert-danger" *ngIf="generalErrorMessage">{{ generalErrorMessage }}</p>
+            <div class="alert alert-danger" *ngIf="uploadErrorMsg && uploadErrorMsg!.length > 0">
+              <p class="my-1" *ngFor="let error of uploadErrorMsg">{{ error }}</p>
+            </div>
+            <mat-progress-bar class="progress-bar" mode="determinate" [value]="progress"
+              *ngIf="progress"></mat-progress-bar>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="w-100 text-center">
+            <button type="submit" class="btn btn-primary" [disabled]="!fileValid || fileProcessing"
+              style="width: 300px;">Upload</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<p *ngIf="!devicesUnidentifiedTotal"><em>Loading...</em></p>
+<p *ngIf="generalErrorMessage" class="alert alert-danger">{{generalErrorMessage}}</p>
+
+<div class="modal fade" id="actionModal" tabindex="-1" aria-labelledby="actionModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" *ngIf="selectedElement">
+      <form [formGroup]="deviceUnidentifiedForm" (ngSubmit)="onSubmit()">
+        <div class="modal-header">
+          <label for="name" class="form-label">
+            <h5 class="modal-title" id="actionModalLabel">{{title}}</h5>
+          </label>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #actionModal
+            (click)="clearModal()"></button>
+        </div>
+        <div class="modal-body mb-3">
+          <label for="amount">{{modalInstruction}} <sup class="star">*</sup></label>
+          <input type="number" class="form-control" formControlName="amount" id="amount" name="amount">
+          <div class="alert alert-danger" [hidden]="deviceUnidentifiedForm.get('amount')!.pristine"
+            *ngFor="let error of getErrors(deviceUnidentifiedForm.get('amount')!, 'Amount', null, this.selectedElement!.amount)">
+            {{ error }}</div>
+          <p class="alert alert-danger" *ngIf="generalErrorMessage">{{ generalErrorMessage }}</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary" [disabled]="deviceUnidentifiedForm.invalid">Save
+            changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<table mat-table [dataSource]="devicesUnidentifiedTotal" multiTemplateDataRows matSort class="mat-elevation-z8"
+  [hidden]="!devicesUnidentifiedTotal">
+
+  <ng-container matColumnDef="deviceTypeName">
+    <th mat-header-cell mat-sort-header *matHeaderCellDef>Device Type</th>
+    <td mat-cell *matCellDef="let deviceTotal" class="total-row">{{ deviceTotal.deviceTypeName }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="deviceStatusName">
+    <th mat-header-cell mat-sort-header *matHeaderCellDef>Status</th>
+    <td mat-cell *matCellDef="let deviceTotal" class="status total-row">{{ deviceTotal.deviceStatusName }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="amount">
+    <th mat-header-cell mat-sort-header *matHeaderCellDef>Amount</th>
+    <td mat-cell *matCellDef="let deviceTotal" class="total-row"><b>{{ deviceTotal.amount }}</b></td>
+  </ng-container>
+
+  <ng-container matColumnDef="expand">
+    <th mat-header-cell *matHeaderCellDef aria-label="row expansion">Actions</th>
+    <td mat-cell *matCellDef="let deviceTotal">
+      <button mat-icon-button aria-label="expand row" (click)="(expandedElement = expandedElement === deviceTotal ? null : deviceTotal); 
+                filterByDeviceType(deviceTotal);
+                $event.stopPropagation()" class="collapse-btn">
+        <mat-icon *ngIf="expandedElement !== deviceTotal">keyboard_arrow_down</mat-icon>
+        <mat-icon *ngIf="expandedElement === deviceTotal">keyboard_arrow_up</mat-icon>
+      </button>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="expandedDetail">
+    <td mat-cell *matCellDef="let deviceTotal" [attr.colspan]="displayedColumns.length">
+      <div class="example-element-detail" [@detailExpand]="deviceTotal === expandedElement ? 'expanded' : 'collapsed'">
+        <table mat-table [dataSource]="devicesUnidentified" class="mat-elevation-z8">
+          <ng-container matColumnDef="deviceTypeName">
+            <td mat-cell *matCellDef="let device"></td>
+          </ng-container>
+
+          <ng-container matColumnDef="deviceStatusName">
+            <td mat-cell *matCellDef="let device" [ngClass]="{'text-success': device.deviceStatusId === 1, 
+                        'text-primary': device.deviceStatusId === 2, 'text-warning': device.deviceStatusId === 3, 
+                        'text-danger': device.deviceStatusId == 4, 'text-muted': device.deviceStatusId === 5}">{{
+              device.deviceStatusName }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="amount">
+            <td mat-cell *matCellDef="let device" [ngClass]="{'text-success': device.deviceStatusId === 1, 
+                        'text-primary': device.deviceStatusId === 2, 'text-warning': device.deviceStatusId === 3, 
+                        'text-danger': device.deviceStatusId == 4, 'text-muted': device.deviceStatusId === 5}">{{
+              device.amount }}
+            </td>
+          </ng-container>
+
+          <ng-component matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let device">
+              <div class="dropdown">
+                <button type="button" class="actionBtn" data-bs-toggle="dropdown" aria-expanded="false"
+                  *ngIf="device.amount > 0 || device.deviceStatusId === 1">
+                  <i class="bi bi-three-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#actionModal"
+                      *ngIf="device.deviceStatusId === 1" (click)="getSelectedData(device, 1)">
+                      <i class="bi bi-plus-circle-fill me-2"></i>Add
+                    </button>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" [routerLink]="['/device/unidentified/assign', device.deviceTypeId]"
+                      *ngIf="device.deviceStatusId === 1 && device.amount > 0">
+                      <i class="bi bi-arrow-right me-2"></i>Assign to a User
+                    </a>
+                  </li>
+                  <li>
+                    <button class="dropdown-item" (click)="getSelectedData(device, 11)"
+                      *ngIf="device.deviceStatusId === 1 && device.amount > 0" data-bs-toggle="modal"
+                      data-bs-target="#actionModal">
+                      <i class="bi bi-x-circle me-2"></i>Move to Damanged
+                    </button>
+                  </li>
+                  <li>
+                    <button class="dropdown-item" (click)="getSelectedData(device, 5)"
+                      *ngIf="(device.deviceStatusId === 1 || device.deviceStatusId === 4) && device.amount > 0"
+                      data-bs-toggle="modal" data-bs-target="#actionModal">
+                      <i class="bi bi-slash-circle-fill me-2"></i>Decommission
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </ng-component>
+
+          <tr mat-row *matRowDef="let device; columns: detailColumns"></tr>
+        </table>
+      </div>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let deviceTotal; columns: displayedColumns;" class="example-element-row"
+    [class.example-expanded-row]="expandedElement === deviceTotal"
+    (click)="expandedElement = expandedElement === deviceTotal ? null : deviceTotal; filterByDeviceType(deviceTotal); $event.stopPropagation()">
+  </tr>
+  <tr mat-row *matRowDef="let deviceTotal; columns: ['expandedDetail']" class="example-detail-row"></tr>
+</table>
+
+<app-loading></app-loading>
+<app-announcement></app-announcement>

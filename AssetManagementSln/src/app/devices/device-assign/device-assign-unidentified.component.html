@@ -1,0 +1,59 @@
+<p *ngIf="generalErrorMessage" class="alert alert-danger">{{ generalErrorMessage }} </p>
+
+<app-users [title]="title" (select)="onSelected($event)"></app-users>
+
+<button type="button" class="btn btn-success selectBtn" *ngIf="userSelected"
+    data-bs-toggle="modal" data-bs-target="#confirmUdModal" (click)="queryUserDeviceTypeUd()">
+    Assign the selected device to user {{ userSelected.userName }}
+</button>
+
+<div class="modal fade" id="confirmUdModal" tabindex="-1" aria-labelledby="confirmUdModal" aria-hidden="true" *ngIf="deviceType && userSelected">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmUdModalLabel">Assign Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="resetDialog()" #confirmUdModal></button>
+            </div>
+            <div class="modal-body">
+                <p *ngIf="userUsingDeviceOfSameType === undefined"><em>Loading, please wait...</em></p>
+
+                <div *ngIf="userUsingDeviceOfSameType === false">
+                    <p>Are you sure to assign a
+                        <span class="text-danger">{{ deviceType.name }}</span> to user 
+                        <span class="text-danger">{{ userSelected!.displayName }}</span>?</p>
+                    <p>An email confirmation will be sent to <span class="text-danger fw-bold">{{ userSelected!.email }}</span></p>
+                </div>
+
+                <div *ngIf="userUsingDeviceOfSameType === true">
+                    <p>User 
+                        <span class="text-danger">{{ userSelected!.userName }}</span>
+                        is already using a
+                        <span class="text-danger">{{ deviceType.name }}</span>
+                        . Select an action with this device:
+                    </p>
+                    
+                    <form [formGroup]="optionsForm">
+                        <mat-radio-group formControlName="choice" aria-label="Select an option">
+                            <mat-radio-button value="3" class="me-3">Move this device to stock</mat-radio-button>
+                            <mat-radio-button value="10" >Mark as Damaged</mat-radio-button>
+                        </mat-radio-group>
+                    </form>
+                    <p class="mt-3 mb-0">Do you want to reassign a new 
+                        <span class="text-danger">{{ deviceType.name }}</span>
+                        to this user?
+                    </p>
+                    <p class="mt-1">An email confirmation will be sent to <span class="text-danger fw-bold">{{ userSelected!.email }}</span></p>
+                </div>
+                <p *ngIf="generalErrorMessage" class="alert alert-danger">{{generalErrorMessage}}</p>
+            </div>
+            <div class="modal-footer" *ngIf="userUsingDeviceOfSameType !== undefined">
+                <p class="col"></p>
+                <button type="button" class="btn btn-secondary col-sm-3" data-bs-dismiss="modal" (click)="resetDialog()">No</button>
+                <button type="button" class="btn btn-primary col-sm-3" [disabled]="generalErrorMessage" (click)="onConfirmed()">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<app-announcement></app-announcement>
+<app-loading></app-loading>

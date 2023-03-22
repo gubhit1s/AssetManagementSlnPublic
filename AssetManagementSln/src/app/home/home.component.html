@@ -1,0 +1,54 @@
+<div class="container">
+  <div class="row mt-5">
+    <div class="col">
+      <h3 class="d-inline">Asset Management</h3>
+      <app-reload (click)="loadData()"></app-reload>
+    </div>
+  </div> 
+  <div class="row mb-3">
+    <div class="col">
+      <p class="text-secondary">Dashboard</p>
+    </div>
+  </div>
+</div>
+
+<p *ngIf="!deviceOverviews" class="my-2"><em>Loading Dashboard...</em></p>
+<app-alert-error *ngIf="generalErrorMessage" [errorMessage]="generalErrorMessage"></app-alert-error>
+
+<div class="container" *ngIf="deviceOverviews">
+  <div class="row row-cols-auto">
+    <div class="card bg-light col mx-2 my-1" *ngFor="let overview of deviceOverviews" style="width: 370px; z-index: 6">
+      <div class="card-body container">
+        <div class="row mb-2">
+          <div class="col">
+            <h5 class="card-title my-1">{{overview.deviceTypeName}}</h5>
+          </div>
+          <div class="col number">
+            <h3 class="card-text">{{overview.totalAmount}}</h3>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="progress" style="height: 27px">
+              <div class="progress-bar bg-success text-white" role="progressbar"
+                [ngStyle]="{'width': overview.inStockPercentage + '%'}" aria-valuenow="overview.inStockPercentage"
+                aria-valuemin="0" aria-valuemax="100">{{overview.inStockAmount}}</div>
+              <div class="progress-bar text-white" role="progressbar"
+                [ngStyle]="{'width': overview.inUsePercentage + '%'}" aria-valuenow="overview.inUsePercentage"
+                aria-valuemin="0" aria-valuemax="100">{{overview.inUseAmount}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<br>
+<div class="d-flex justify-content-center">
+  <div class='box bg-success mx-2'></div>
+  In Stock
+  <div class='box bg-primary mx-2'></div>
+  In Use
+  <div class='box other mx-2'></div>
+  Other
+</div>

@@ -1,0 +1,156 @@
+<div class="container">
+  <div class="row mt-5">
+    <div class="col">
+      <h3 class="d-inline">User Permissions</h3>
+      <app-reload (click)="loadPermittedUsers()"></app-reload>
+    </div>
+    <div class="col">
+      <div class="row justify-content-end">
+
+        <div class="col-sm-auto">
+          <button color="success" class="addButton" data-bs-toggle="modal" data-bs-target="#userModal"
+            (click)="loadUsers()">
+            <b><i class="bi bi-plus-lg me-2"></i>Add Users</b>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mb-3">
+    <div class="col">
+      <p class="text-secondary">Apply roles for each user</p>
+    </div>
+  </div>
+</div>
+
+<p *ngIf="!permittedUsers"><em>Loading...</em></p>
+<app-alert-error *ngIf="generalErrorMessage" [errorMessage]="generalErrorMessage"></app-alert-error>
+
+<table class="mat-elevation-z8" mat-table [dataSource]="permittedUsers" matSort [hidden]="!permittedUsers"
+  *ngIf="permittedUsersArr">
+
+
+  <ng-container matColumnDef="userName">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>User Name</th>
+    <td mat-cell *matCellDef="let user">{{ user.userName }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="displayName">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Display Name</th>
+    <td mat-cell *matCellDef="let user">{{ user.displayName }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="email">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+    <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Actions</th>
+    <td mat-cell *matCellDef="let user">
+      <button type="button" data-bs-toggle="modal" data-bs-target="#confirmRevokeModal" (click)="getSelectedUser(user)">
+        <i class="bi bi-trash delete-icon"></i></button>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;">
+</table>
+
+<div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+  <div class="modal-lg modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h5 class="modal-title w-100" id="userModalLabel">Select Users to Grant Access</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #permissionModal></button>
+      </div>
+      <div class="modal-body">
+        <p *ngIf="!allUsers"><em>Loading...</em></p>
+        <div>
+          <div class="container">
+            <div class="row mb-2">
+              <div class="col">
+                <div class="form-outline">
+                  <input *ngIf="allUsers" type="search" class="form-control search-bar"
+                    (search)="applyFilter($event, allUsers)" (keyup)="applyFilter($event, allUsers)"
+                    placeholder="Search for user(s) in any fields...">
+                </div>
+              </div>
+            </div>
+          </div>
+          <table mat-table [dataSource]="allUsers" matSort [hidden]="!allUsers" *ngIf="allUsersArr">
+
+            <section>
+              <ng-container matColumnDef="checkbox">
+                <th mat-header-cell *matHeaderCellDef sortActionDescription="Sort by user code">
+                  <mat-checkbox [checked]="allChecked" [indeterminate]="someChecked(allUsersArr)"
+                    (change)="setAll($event.checked, allUsersArr); getCheckedUsersToGrant()"></mat-checkbox>
+                </th>
+                <td mat-cell *matCellDef="let user">
+
+                  <mat-checkbox [(ngModel)]="user.checked" (change)="getCheckedUsersToGrant()"></mat-checkbox>
+                </td>
+              </ng-container>
+            </section>
+
+            <ng-container matColumnDef="userName">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by user code">User Name
+              </th>
+              <td mat-cell *matCellDef="let user">{{ user.userName }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="displayName">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by name">Full Name</th>
+              <td mat-cell *matCellDef="let user">{{ user.displayName }}</td>
+            </ng-container>
+
+
+            <ng-container matColumnDef="email">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by email">Email</th>
+              <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+            </ng-container>
+
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumnsAllUsers"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumnsAllUsers;">
+            </tr>
+          </table>
+          <mat-paginator [pageSizeOptions]="[5, 10, 50]" showFirstLastButtons aria-label="Select page"></mat-paginator>
+
+        </div>
+        <app-alert-error *ngIf="customizedError" [errorMessage]="customizedError"></app-alert-error>
+      </div>
+      <div class="modal-footer">
+        <div class="w-100 text-center">
+          <button type="button" class="btn btn-primary"
+            [disabled]="!checkedUsersToGrant || checkedUsersToGrant.length === 0" (click)="grantAccess()">Grant
+            Access</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="confirmRevokeModal" tabindex="-1" aria-labelledby="confirmRevokeModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmRevokeModalLabel">Revoke Confirmation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #confirmRevokeModal></button>
+      </div>
+      <div class="modal-body" *ngIf="selectedUser">
+        <p>Are you sure to revoke access from user <span class="text-danger">{{selectedUser.userName}}</span>?</p>
+        <app-alert-error *ngIf="generalErrorMessage" [errorMessage]="generalErrorMessage">{{generalErrorMessage}}</app-alert-error>
+      </div>
+      <div class="modal-footer">
+        <p class="col"></p>
+        <button type="button" class="btn btn-secondary col-sm-3" data-bs-dismiss="modal">No</button>
+        <button type="button" class="btn btn-primary col-sm-3" (click)="revokeAccess()">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-loading></app-loading>
+<app-announcement></app-announcement>

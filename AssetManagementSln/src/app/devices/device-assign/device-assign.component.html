@@ -1,0 +1,73 @@
+<p *ngIf="generalErrorMessage" class="alert alert-danger">{{ generalErrorMessage }} </p>
+    
+<app-device-information [device]="device" (loaded)="loadDeviceInfo($event)"></app-device-information>
+
+<app-users *ngIf="device && +device.deviceStatusId === 1" [title]="title" (select)="onSelected($event)"></app-users>
+
+<div *ngIf="device && +device.deviceStatusId !== 1" class="alert alert-warning alert-dismissible fade show" role="alert">
+    <strong>Error!</strong> You cannot assign a device that is not in stock
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<button type="button" class="btn btn-success selectBtn" *ngIf="userSelected"
+    data-bs-toggle="modal" data-bs-target="#confirmModal" (click)="queryUserDeviceType()">
+    Assign the selected device to user {{ userSelected.userName }}
+</button>
+
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModal" aria-hidden="true" *ngIf="device && userSelected">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Assign Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="resetDialog()" #confirmModal></button>
+            </div>
+            <div class="modal-body">
+                <p *ngIf="userUsingDeviceOfSameType === undefined"><em>Loading, please wait...</em></p>
+
+                <div *ngIf="userUsingDeviceOfSameType === false">
+                    <p>Are you sure to assign device
+                        <span class="text-danger">{{ device!.serviceTag }}</span> to user 
+                        <span class="text-danger">{{ userSelected!.displayName }}</span>?</p>
+                    <p>An email confirmation will be sent to <span class="text-danger fw-bold">{{ userSelected!.email }}</span></p>
+                </div>
+
+                <div *ngIf="userUsingDeviceOfSameType === true">
+                    <p>User 
+                        <span class="text-danger">{{ userSelected!.displayName }}</span>
+                        is already using a
+                        <span class="text-danger">{{ device!.deviceTypeName }}</span>
+                        with service tag
+                        <span class="text-danger">{{ deviceOfUser!.serviceTag }}</span>
+                        . Select an action with this device:
+                    </p>
+                    
+                    <form [formGroup]="optionsForm">
+                        <mat-radio-group formControlName="choice" aria-label="Select an option">
+                            <mat-radio-button value="3" class="me-3">Move this device to stock</mat-radio-button>
+                            <mat-radio-button value="6" >Repair this device</mat-radio-button>
+                        </mat-radio-group>
+                    </form>
+                    <p class="mt-3 mb-0">Do you want to reassign a new 
+                        <span class="text-danger">{{ device!.deviceTypeName }}</span>
+                        with service tag
+                        <span class="text-danger">{{ device!.serviceTag }}</span>
+                        to this user?
+                    </p>
+                    <p class="mt-1">An email confirmation will be sent to <span class="text-danger fw-bold">{{ userSelected!.email }}</span></p>
+                </div>
+                <div *ngIf="generalErrorMessage" class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <strong>Error!</strong> {{generalErrorMessage}}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+            <div class="modal-footer" *ngIf="userUsingDeviceOfSameType !== undefined">
+                <p class="text-left text-warning col-sm-4" *ngIf="processing"><em>Processing, please wait...</em></p>
+                <p class="col"></p>
+                <button type="button" class="btn btn-secondary col-sm-3" data-bs-dismiss="modal" (click)="resetDialog()">No</button>
+                <button type="button" class="btn btn-primary col-sm-3" (click)="onConfirmed()">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<app-loading></app-loading>

@@ -1,0 +1,27 @@
+
+.account-card {
+  min-width: 800px;
+  min-height: 400px;
+  border: 1px solid none;
+  background-color: #F7F7F7;
+}
+
+.btn-login {
+  background: linear-gradient(to right, #ff9b44 0%, #fc6075 100%);
+  border: none;
+  width: 100%;
+}
+
+.btn-login:disabled {
+  opacity: 0.3;
+}
+
+.login-subtitle {
+  font-size: 1.3rem;
+  color: #BAA8A8;
+}
+
+label {
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}

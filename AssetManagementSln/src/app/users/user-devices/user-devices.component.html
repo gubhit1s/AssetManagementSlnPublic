@@ -1,0 +1,106 @@
+<div class="container">
+  <div class="row mt-5 mb-3">
+    <div class="col">
+      <h3 class="d-inline mt-5" *ngIf="user"><b>Devices by {{ user.displayName }}</b></h3>
+      <app-reload (click)="loadData()"></app-reload>
+    </div>
+    <div class="col">
+      <div class="row justify-content-end">
+        <div class="col-auto" *ngIf="!emptyData">
+          <button type="button" class="bulkButton" data-bs-toggle="modal" data-bs-target="#withdrawAllModal">
+            <b><i class="bi bi-arrow-left-square-fill me-2"></i>Withdraw All Devices</b>
+          </button>
+        </div>
+        <div class="col-auto" *ngIf="user">
+          <a type="button" class="addButton" [routerLink]="['/users/batch', user.userName] ">
+            <b><i class="bi bi-cart me-2"></i>Create an Assigning Cart</b>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p *ngIf="!user"><em>Loading...</em></p>
+
+<div class="modal fade" id="withdrawUdModal" tabindex="-1" aria-labelledby="withdrawUdModal" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="withdrawUdModalLabel">Withdraw Device</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #withdrawUdModal></button>
+      </div>
+      <div class="modal-body">
+        <p *ngIf="!deviceUdSelected"><em>Loading</em></p>
+        <div *ngIf="deviceUdSelected">
+          <p> Are you sure to withdraw a <b><span class="text-danger">{{ deviceUdSelected.name }}</span></b> from
+            user {{ user?.displayName }}?</p>
+          <p>An email confirmation will be sent to <span class="text-danger"><b> {{ user?.email }}</b></span> </p>
+          <div class="row" *ngIf="generalErrorMessage">
+            <p class="alert alert-danger">{{ generalErrorMessage }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" *ngIf="deviceUdSelected">
+        <p class="col"></p>
+        <button type="button" class="btn btn-secondary col-sm-3" data-bs-dismiss="modal">No</button>
+        <button type="button" class="btn btn-primary col-sm-3" (click)="onWithdrawUd()">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="withdrawAllModal" tabindex="-1" aria-labelledby="withdrawAllModal" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="withdrawAllModalLabel">Withdraw All Devices</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #withdrawAllModal></button>
+      </div>
+      <div class="modal-body">
+        <p> Are you sure to withdraw <b><span class="text-danger">ALL DEVICES</span></b> from
+          user <span class="text-danger">{{ user?.displayName }}?</span></p>
+        <p>An email confirmation will be sent to <span class="text-danger"><b> {{ user?.email }}</b></span> </p>
+        <div class="row" *ngIf="generalErrorMessage">
+          <p class="alert alert-danger">{{ generalErrorMessage }}</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <p class="col"></p>
+        <button type="button" class="btn btn-secondary col-sm-3" data-bs-dismiss="modal">No</button>
+        <button type="button" class="btn btn-primary col-sm-3" [disabled]="generalErrorMessage" (click)="onWithdrawAll()">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mt-4">
+  <h5 class="card-header">Identified</h5>
+  <div class="card-body">
+    <app-devices-list [devices]="devicesOfUser" [errorMessage]="generalErrorMessage" [deviceTypes]="allDeviceTypes"
+      (dataChanged)="loadData"></app-devices-list>
+  </div>
+</div>
+
+<div class="card mt-4 bg-light">
+  <h5 class="card-header">Unidentifed</h5>
+  <div class="card-body">
+    <table mat-table [dataSource]="devicesUdOfUser" class="mat-elevation-z8" [hidden]="!devicesUdOfUser">
+      <ng-container matColumnDef="deviceType">
+        <th mat-header-cell *matHeaderCellDef>Device Type</th>
+        <td mat-cell *matCellDef="let deviceType">{{ deviceType.name }}</td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let deviceType">
+          <button type="button" class="actionBtn" matTooltip="Withdraw" [matTooltipPosition]="rightTooltip"
+            data-bs-toggle="modal" data-bs-target="#withdrawUdModal" (click)="getDeviceUdToWithdraw(deviceType)">
+            <i class="bi bi-arrow-left me-2"></i>
+          </button>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="unidentifiedCols"></tr>
+      <tr mat-row *matRowDef="let row; columns: unidentifiedCols;"></tr>
+    </table>
+  </div>
+</div>

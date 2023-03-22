@@ -1,0 +1,304 @@
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModal" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <form [formGroup]="deviceForm" (ngSubmit)="onSubmit()">
+
+        <div class="modal-header form-group text-center">
+          <label for="name" class="form-label w-100">
+            <h5 class="modal-title" id="editModalTitle">{{ modalTitle }}</h5>
+          </label>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #editModal></button>
+        </div>
+
+        <div class="modal-body container">
+          <div class="row">
+            <div class="col">
+              <label for="serviceTag">Service Tag<span class="star">*</span></label>
+              <input type="text" required class="form-control" formControlName="serviceTag" id="serviceTag">
+              <div class="alert alert-danger" [hidden]="deviceForm.get('serviceTag')!.pristine"
+                *ngFor="let error of getErrors(deviceForm.get('serviceTag')!, 'Service Tag')">
+                {{ error }}</div>
+            </div>
+            <div class="col">
+              <label for="serviceTag">Device Name</label>
+              <input type="text" class="form-control" formControlName="deviceName">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col" *ngIf="deviceTypes | async as result">
+              <label for="deviceType">Device Type<span class="star">*</span></label>
+              <select class="form-select form-control" formControlName="deviceTypeId">
+                <option *ngFor="let deviceType of result" [ngValue]="deviceType.id">
+                  {{deviceType.name}}</option>
+              </select>
+              <div class="alert alert-danger"
+                [hidden]="deviceForm.get('deviceTypeId')!.valid || deviceForm.get('deviceTypeId')!.pristine">
+                Device Type is required</div>
+            </div>
+            <div class="col">
+              <label for="acquiredDate">Acquired Date</label>
+              <input type="date" class="form-control" formControlName="acquiredDate">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <label for="deviceType">Device Model</label>
+              <input type="text" class="form-control" formControlName="deviceModel">
+            </div>
+            <div class="col">
+              <label for="warrantDate">PO Number</label>
+              <input type="text" class="form-control" formControlName="poNumber">
+            </div>
+          </div>
+
+          <div class="row" *ngIf="errorMessage">
+            <app-alert-error [errorMessage]="errorMessage"></app-alert-error>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <div class="w-100 text-center">
+            <button type="submit" class="btn btn-primary" [disabled]="deviceForm.invalid"
+              style="width: 300px;">Submit</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="withdrawModal" tabindex="-1" aria-labelledby="withdrawModalLabel" aria-hidden="true"
+  *ngIf="deviceToWithdraw">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="withdrawModalLabel">Withdraw Device</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #withdrawModal></button>
+      </div>
+      <div class="modal-body">
+        <p *ngIf="!currentUser"><em>Loading...</em></p>
+        <div *ngIf="currentUser">
+          <p>This device is being used by user <span class="text-danger">{{ currentUser!.displayName }}</span>
+            . Are you sure to withdraw this device?
+          </p>
+          <p>An email confirmation will be sent to <span class="text-danger"><b> {{ currentUser!.email }}</b></span>
+          </p>
+
+          <div class="row" *ngIf="errorMessage">
+            <app-alert-error [errorMessage]="errorMessage"></app-alert-error>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" *ngIf="currentUser">
+        <p class="col"></p>
+        <button type="button" class="btn btn-secondary col-sm-3" data-bs-dismiss="modal">No</button>
+        <button type="button" class="btn btn-primary col-sm-3" (click)="onWithdraw()"
+          [disabled]="errorMessage">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="maintainModal" tabindex="-1" aria-labelledby="maintainModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="maintainModalLabel">Maintain Device</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #maintainModal></button>
+      </div>
+      <div class="modal-body" *ngIf="deviceToProcess">
+        <div>
+          <p>Are you sure to move device <span class="text-danger">{{ deviceToProcess.serviceTag }} </span> to the
+            maintaining list?
+          </p>
+
+          <div class="row" *ngIf="errorMessage">
+            <app-alert-error [errorMessage]="errorMessage"></app-alert-error>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <p class="col"></p>
+        <button type="button" class="btn btn-secondary col-sm-3" data-bs-dismiss="modal">No</button>
+        <button type="button" class="btn btn-primary col-sm-3" (click)="onMaintain()">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="maintainDoneModal" tabindex="-1" aria-labelledby="maintainDoneModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="maintainDoneModalLabel">Recover Device</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #maintainDoneModal></button>
+      </div>
+      <div class="modal-body" *ngIf="deviceToProcess">
+        <div>
+          <p>Are you sure to move device <span class="text-danger">{{ deviceToProcess.serviceTag }} </span> back to stock?
+          </p>
+
+          <div class="row" *ngIf="errorMessage">
+            <app-alert-error [errorMessage]="errorMessage"></app-alert-error>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="row options text-center">
+          <div class="col-sm-2">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+          </div>
+          <div class="col-sm-5">
+            <button type="button" class="btn btn-danger" (click)="onRecover(false)">Yes, this device was damaged</button>
+          </div>
+          <div class="col-sm-5">
+            <button type="button" class="btn btn-success" (click)="onRecover(true)">Yes, this device was repaired</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="decommissionModal" tabindex="-1" aria-labelledby="decommissionModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="decommissionModalLabel">Decommission Device</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #decommissionModal></button>
+      </div>
+      <div class="modal-body" *ngIf="deviceToProcess">
+        <div>
+          <p>Are you sure to decommission device <span class="text-danger">{{ deviceToProcess.serviceTag }} </span> ?
+          </p>
+
+          <div class="row" *ngIf="errorMessage">
+            <app-alert-error [errorMessage]="errorMessage"></app-alert-error>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <p class="col"></p>
+        <button type="button" class="btn btn-secondary col-sm-3" data-bs-dismiss="modal">No</button>
+        <button type="button" class="btn btn-primary col-sm-3" (click)="onDecommissioned()">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p *ngIf="!devices"><em>Loading</em></p>
+
+<div class="alert alert-warning alert-dismissible fade show" role="alert" *ngIf="generalErrorMessage">
+  <strong>Error!</strong> {{generalErrorMessage}}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<div class="mat-elevation-z8">
+  <table mat-table [dataSource]="devices" matSort [hidden]="!devices">
+
+    <ng-container matColumnDef="deviceTypeName">
+      <th mat-header-cell mat-sort-header *matHeaderCellDef>Device Type</th>
+      <td mat-cell *matCellDef="let device">{{ device.deviceTypeName }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="serviceTag">
+      <th mat-header-cell mat-sort-header *matHeaderCellDef>Service Tag</th>
+      <td mat-cell *matCellDef="let device">
+        <a [routerLink]="['/device/', device.id]"> {{ device.serviceTag }}</a>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="deviceName">
+      <th mat-header-cell mat-sort-header *matHeaderCellDef>Device Name</th>
+      <td mat-cell *matCellDef="let device">{{ device.deviceName }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="acquiredDate">
+      <th mat-header-cell mat-sort-header *matHeaderCellDef>Acquired Date</th>
+      <td mat-cell *matCellDef="let device">{{ device.acquiredDate }}</td>
+    </ng-container>
+
+    <!--
+      <ng-container matColumnDef="warrantyDate">
+          <th mat-header-cell *matHeaderCellDef>Warranty Date</th>
+          <td mat-cell *matCellDef="let device">{{ device.warrantyDate | date: 'MM/dd/yyyy' }}</td>
+      </ng-container> 
+
+      <ng-container matColumnDef="serialNumber">
+          <th mat-header-cell *matHeaderCellDef>Serial Number</th>
+          <td mat-cell *matCellDef="let device">{{ device.serialNumber }}</td>
+      </ng-container> -->
+
+    <ng-container matColumnDef="deviceStatusName">
+      <th mat-header-cell mat-sort-header *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let device" class="status" [ngClass]="{'text-success': device.deviceStatusId === 1, 
+              'text-primary': device.deviceStatusId === 2, 'text-warning': device.deviceStatusId === 3, 
+              'text-danger': device.deviceStatusId == 4, 'text-muted': device.deviceStatusId === 5}">{{
+        device.deviceStatusName }}</td>
+    </ng-container>
+
+    <ng-component matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let device">
+        <div class="dropdown">
+          <button type="button" class="actionBtn" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-three-dots-vertical"></i>
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editModal"
+                (click)="getDeviceDataForEditing(device)">
+                <i class="bi bi-pencil-square me-2"></i>Edit
+              </button>
+            </li>
+            <li>
+              <a class="dropdown-item" [routerLink]="['/device/assign', device.id]" *ngIf="device.deviceStatusId === 1">
+                <i class="bi bi-arrow-right me-2"></i>Assign to a User
+              </a>
+            </li>
+            <li>
+              <button class="dropdown-item" (click)="getUserOfDeviceToWithdraw(device)" data-bs-toggle="modal"
+                data-bs-target="#withdrawModal" *ngIf="device.deviceStatusId === 2">
+                <i class="bi bi-arrow-left me-2"></i>Withdraw
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item" (click)="getDeviceToProcess(device)" *ngIf="device.deviceStatusId === 1"
+                data-bs-toggle="modal" data-bs-target="#maintainModal">
+                <i class="bi bi-tools me-2"></i>Maintain
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item" (click)="getDeviceToProcess(device)" *ngIf="device.deviceStatusId === 3"
+                data-bs-toggle="modal" data-bs-target="#maintainDoneModal">
+                <i class="bi bi-database me-2"></i>Move back to Stock
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item" (click)="getDeviceToProcess(device)"
+                *ngIf="device.deviceStatusId === 1 || device.deviceStatusId === 4" data-bs-toggle="modal"
+                data-bs-target="#decommissionModal">
+                <i class="bi bi-slash-circle-fill me-2"></i>Decommission
+              </button>
+            </li>
+          </ul>
+        </div>
+      </td>
+    </ng-component>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+  </table>
+
+  <mat-paginator [pageSizeOptions]="[10, 20, 50]" showFirstLastButtons aria-label="Select page"></mat-paginator>
+</div>
+<app-announcement></app-announcement>
+<app-loading></app-loading>
+
+<!--<p class="mt-2" style="text-align: right; font-size: 0.8rem">Note: all dates are in mm/dd/yyyy format.</p>-->

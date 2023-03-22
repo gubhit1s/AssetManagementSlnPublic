@@ -1,0 +1,88 @@
+
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="logoutModalLabel">Log out</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #logoutModal></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure to log out?</p>
+      </div>
+      <div class="modal-footer">
+        <p class="col"></p>
+          <button type="button" class="btn btn-secondary col-sm-3" data-bs-dismiss="modal">No</button>
+          <button type="button" class="btn btn-primary col-sm-3" (click)="onLogout()">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<main>
+  <div id="navbar" class="flex-column flex-shrink-0 p-3 text-white">
+    <div class="nav nav-pills flex-column mb-auto">
+      <li class="nav-item" role="presentation">
+        <a href="#home" id="home" class="nav-link text-white active py-3" style="font-size: 1.7rem;" 
+        [routerLink]="['']" (click)="setActive($event, 'active')" #dashboard>
+          <i class="bi bi-house me-2"></i>
+          Home
+        </a>
+      </li>
+      <hr>
+      <li class="nav-item" role="presentation">
+        <button id="devices" class="py-3 text-white nav-link" type="button" data-bs-toggle="collapse"
+          data-bs-target="#collapseDevices" aria-expanded="true" aria-controls="collapseDevices" (click)="toggleDevice()">
+          <i class="bi bi-laptop me-2"></i><span class="ms-1">Devices</span>
+          <i class="bi bi-caret-down" style="float: right;" *ngIf="deviceExpand"></i>
+          <i class="bi bi-caret-right" style="float: right;" *ngIf="!deviceExpand"></i>
+        </button>
+        <ul class="collapse show mb-0" id="collapseDevices" style="list-style-type:none;" aria-labelledby="devices">
+          <li><a class="nav-link text-white" [routerLink]="['/devices']" (click)="setActive($event, 'active')">Identified</a></li>
+          <li><a class="nav-link text-white" [routerLink]="['/devices/unidentified']" (click)="setActive($event, 'active')">Unidentified</a></li>
+        </ul>
+      </li>
+      <li class="nav-item" role="presentation"> 
+        <a [routerLink]="['/users']" class="nav-link text-white py-3" (click)="setActive($event, 'active')">
+          <i class="bi bi-people me-2"></i>
+          Users
+        </a>
+      </li>
+      <li class="nav-item" role="presentation"> 
+        <button class="nav-link text-white py-3" data-bs-toggle="collapse"
+        data-bs-target="#collapseTransfers" (click)="toggleTransfer()">
+          <i class="bi bi-clock-history me-2"></i>
+          <i class="bi bi-caret-down" style="float: right;" *ngIf="transferExpand"></i>
+          <i class="bi bi-caret-right" style="float: right;" *ngIf="!transferExpand"></i>
+          Transfer History
+        </button>
+        <ul class="collapse mb-0" id="collapseTransfers" style="list-style-type:none;" aria-labelledby="devices">
+          <li><a class="nav-link text-white" [routerLink]="['/transferhistory/pending']" (click)="setActive($event, 'active')">Pending</a></li>
+          <li><a class="nav-link text-white" [routerLink]="['/transferhistory/completed']" (click)="setActive($event, 'active')">Completed</a></li>
+        </ul>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="py-3 text-white nav-link" type="button" data-bs-toggle="collapse"
+          data-bs-target="#collapseSettings" aria-expanded="false" aria-controls="collapseSettings" (click)="toggleSetting()">
+          <i class="bi bi-gear me-2"></i><span class="ms-1">Settings</span>
+          <i class="bi bi-caret-down" style="float: right;" *ngIf="settingExpand"></i>
+          <i class="bi bi-caret-right" style="float: right;" *ngIf="!settingExpand"></i>
+          
+        </button>
+        <ul class="collapse" id="collapseSettings" style="list-style-type:none;">
+          <li><a class="nav-link text-white" [routerLink]="['/devicetypes']" (click)="setActive($event, 'active')">Device Types</a></li>
+          <li><a class="nav-link text-white" [routerLink]="['/emailsettings']" (click)="setActive($event, 'active')">Email Settings</a></li>
+          <li><a class="nav-link text-white" [routerLink]="['/permission']" (click)="setActive($event, 'active')">Roles & Permissions</a></li>
+        </ul>
+      </li>
+    </div>
+    <hr>
+    <div class="flex-column mb-auto">
+      <button type="button" class="nav-link logout text-white" style="font-size: 1.5rem;" data-bs-toggle="modal" data-bs-target="#logoutModal">
+        <i class="bi bi-box-arrow-right me-2"></i>
+        Log out
+      </button>
+    </div>
+  </div>
+</main>
+

@@ -1,0 +1,16 @@
+.mat-tab-group, .mat-tab-label, .mat-tab-link {
+    font-family: inherit;
+}
+
+::ng-deep .mat-tab-body-wrapper {
+    height: 100vh !important;
+    z-index: auto !important;
+}
+
+.show {
+    ::ng-deep .mat-tab-body-wrapper {
+        
+        z-index: auto !important;
+    }
+}
+    
